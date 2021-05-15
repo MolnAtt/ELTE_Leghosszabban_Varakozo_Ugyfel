@@ -1,7 +1,20 @@
 
 #include <iostream>
+#include <queue>
 
 using namespace std;
+
+struct Ugyfel 
+{
+    int erk;
+    int ugyi;
+
+    Ugyfel(int e, int u)
+    {
+        erk = e;
+        ugyi = u;
+    }
+};
 
 struct Input
 {
