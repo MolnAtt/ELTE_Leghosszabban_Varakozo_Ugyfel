@@ -162,6 +162,9 @@ int Feldolgoz(vector<Ugyfel> ugyfelek)
 
 int main()
 {
+    cin.sync_with_stdio(false);
+    cin.tie(nullptr);
+
     Kiir(Feldolgoz(Beolvas()));
 }
 
