@@ -10,16 +10,20 @@ struct Ugyfel
     int sorszam;
     int erk;
     int ugyi;
-    int varakozasi_ido;
+    int varakozasi_ideje;
 
     Ugyfel(int s, int e, int u)
     {
         sorszam = s;
         erk = e;
         ugyi = u;
-        varakozasi_ido = -1;
+        varakozasi_ideje = -1;
     }
 
+    bool operator< (const Ugyfel& b) const 
+    {
+        return this->ugyi == b.ugyi ? this->erk > b.erk : this->ugyi > b.ugyi;
+    }
     
 
 };
@@ -72,16 +76,16 @@ vector<Ugyfel> Beolvas()
     return ugyfelek;
 }
 
-void Kiir(Ugyfel leghosszabban_varakozo)
+void Kiir(int leghosszabban_varakozo_indexe)
 {
     cerr << "--------------------------------------------------\nA leghosszabban varakozo ugyfel sorszama (tobb eseten a legelso): ";
-    cout << leghosszabban_varakozo.sorszam;
+    cout << leghosszabban_varakozo_indexe + 1;
 }
 
 
-Ugyfel Feldolgoz(vector<Ugyfel> ugyfelek)
+int Feldolgoz(vector<Ugyfel> ugyfelek)
 {
-    priority_queue<Ugyfel> sor;
+    priority_queue<Ugyfel> varolista;
 
     cerr << "Ugyfelek eredetileg:\n";
     Kiir(ugyfelek);
@@ -93,16 +97,61 @@ Ugyfel Feldolgoz(vector<Ugyfel> ugyfelek)
     cerr << "Ugyfelek erkezesi sorrendben:\n";
     Kiir(ugyfelek);
 
-    for (Ugyfel& ugyfel : ugyfelek)
-    {
-
-    }
-
-    Ugyfel leghosszabban_varakozo = ugyfelek[0];
-    
     // Szimuláció
 
-    return leghosszabban_varakozo;
+
+    int leghosszabban_varakozo_indexe = -1;
+    int leghosszabb_varakozas = -1;
+    int aktualis_varakozas = -1;
+
+    int ugyintezes_vege = ugyfelek[0].erk;
+    int i = 0;
+
+    while (i < ugyfelek.size() || !varolista.empty())
+    {
+        while (i< ugyfelek.size() && ugyfelek[i].erk <= ugyintezes_vege) // akik hamarabb érkeznek, minthogy végeznének a bentlévõvel, azok felkerülnek a várólistára
+        {
+            varolista.push(ugyfelek[i]);
+            cerr << ugyfelek[i].erk << " idopontban erkezo " << ugyfelek[i].ugyi << " munkaideju ugyfel (" << ugyfelek[i].sorszam << ".) beallt a sorba.\n";
+            i++;
+            cerr << "----------------------\n";
+        }
+
+        // itt már szabad az ügyintézõ
+        if (i< ugyfelek.size())
+        {
+            cerr << "az ugyintezo " << ugyintezes_vege << " idopontban vegez, a kovetkezo ugyfel viszont " << ugyfelek[i].erk << " idopontban erkezik.\n";
+        }
+        else
+        {
+            cerr << "nem jon tobb ugyfel!\n";
+        }
+        if (!varolista.empty()) // ha van, aki épp sorbaáll
+        {   
+            cerr << "nem ures meg a varolista, ezert behivjuk a ("<< varolista.top().sorszam <<") szamu ugyfelet, aki "<< varolista.top().erk <<" ota var itt.\n";
+            aktualis_varakozas = ugyintezes_vege - varolista.top().erk; // ha többet várt, mint eddig bárki, akkor feljegyezzük a várakozás idejét és sorszámát.
+            if (leghosszabb_varakozas < aktualis_varakozas)
+            {
+                cerr << "talaltam szerencsetlenebb ugyfelet az eddig rekordernel: (" << leghosszabban_varakozo_indexe << ".) ugyfel " << leghosszabb_varakozas << " idejet veri (" << varolista.top().sorszam << ".) ezzel: "<< aktualis_varakozas << endl;
+                leghosszabb_varakozas = aktualis_varakozas;
+                leghosszabban_varakozo_indexe = varolista.top().sorszam;
+            }
+
+            // bejelenti az ügyfélszolgálatos, hogy mikor lesz legközelebb szabad
+            ugyintezes_vege += varolista.top().ugyi;
+            cerr << "bejelenti az ugyfelszolgalatos, hogy legkozelebb " <<varolista.top().ugyi << " ido mulva " << ugyintezes_vege << "-kor lesz szabad.\n";
+
+            // beviszi magával az ügyfelet
+            varolista.pop();
+            cerr << "behivja ezt az ugyfelet.\n";
+            cerr << "=============================\n";
+        }
+        // léptet 
+//        i++;
+    }
+
+
+    return leghosszabban_varakozo_indexe;
 }
 
 
